@@ -69,10 +69,25 @@ function createCard() {
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-fetch('https://httpbin.org/get')
+var url = 'https://httpbin.org/get';
+fetch(url)
   .then(function(res) {
     return res.json();
   })
   .then(function(data) {
+    console.log('From Web:', data);
     createCard();
   });
+
+  if ('caches' in window ) {
+    caches.match(url)
+      .then(function(response) {
+        if (response) {
+          return response.json();
+        }
+      })
+      .then(function(data) {
+        console.log('From Cache:', data);
+        createCard();
+      });
+  }
