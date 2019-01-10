@@ -1,4 +1,4 @@
-var CACHE_STATIC_NAME = 'static-v9';
+var CACHE_STATIC_NAME = 'static-v11';
 var CACHE_DYNAMIC_NAME = 'dynamic-v8';
 
 self.addEventListener('install', function(event) {
@@ -43,8 +43,22 @@ self.addEventListener('activate', function(event) {
     return self.clients.claim();
 });
 
-//  - - - Caching strategy: Cache --> Network - - -
-//  self.addEventListener('fetch', function(event) {
+//- - - Caching strategy: Cache --> Network - - -
+ self.addEventListener('fetch', function(event) {
+    event.respondWith(
+       caches.open(CACHE_DYNAMIC_NAME)
+        .then(function(cache) {
+            return fetch(event.request)
+                .then(function(res) {
+                    cache.put(event.request, res.clone());
+                    return res;
+                });
+        })
+    );
+});
+
+// //- - - Caching strategy: Cache --> Network Dynamic Caching- - -
+// self.addEventListener('fetch', function(event) {
 //     event.respondWith(
 //         caches.match(event.request)
 //             .then(function(response) {
@@ -72,18 +86,18 @@ self.addEventListener('activate', function(event) {
 
 // - - - Caching Strategy: Network --> Cache - - -
 
-self.addEventListener('fetch', function(event) {
-    event.respondWith(
-        fetch(event.request)
-            .then(function(res) {
-                return caches.open(CACHE_DYNAMIC_NAME)
-                    .then(function(cache) {
-                        cache.put(event.request.url, res.clone())
-                        return res;
-                    })
-            })
-            .catch(function(err) {
-                return caches.match(event.request);
-            })
-         );
-});
+// self.addEventListener('fetch', function(event) {
+//     event.respondWith(
+//         fetch(event.request)
+//             .then(function(res) {
+//                 return caches.open(CACHE_DYNAMIC_NAME)
+//                     .then(function(cache) {
+//                         cache.put(event.request.url, res.clone())
+//                         return res;
+//                     })
+//             })
+//             .catch(function(err) {
+//                 return caches.match(event.request);
+//             })
+//          );
+// });
